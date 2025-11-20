@@ -16,5 +16,3 @@ spec:
         - name: hashgenerator
           image: hashgenerator:latest
           imagePullPolicy: Never
-          ports:
-          - containerPort: 5000
