@@ -1,10 +1,11 @@
-from flask import Flask
+from flask import Flask, render_template
 
 app = Flask(__name__)
 
-@app.route("/")
-def home():
-    return "Hello from Flask!"
+@app.route('/')
+def index():
+    # You can pass variables to the template as keyword arguments
+    return render_template('index.html')
 
 if __name__ == "__main__":
     print("Server started in port 5000")   # printed on startup
