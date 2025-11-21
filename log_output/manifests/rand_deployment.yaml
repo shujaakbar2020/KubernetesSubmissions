@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rands-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rands
+  template:
+    metadata:
+      labels:
+        app: rands
+    spec:
+      volumes: # Define volume
+        - name: rands
+          emptyDir: {}
+      containers:
+        - name: rand-generator
+          image: rand_gen
+          imagePullPolicy: Never
+          volumeMounts: # Mount volume
+          - name: rands
+            mountPath: /usr/src
+        - name: rand-reader
+          image: rand_reader
+          imagePullPolicy: Never
+          volumeMounts: # Mount volume
+          - name: rands
+            mountPath: /usr/src
