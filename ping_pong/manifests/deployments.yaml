@@ -12,7 +12,14 @@ spec:
       labels:
         app: pingpong
     spec:
+      volumes:
+        - name: pingpong-pvc
+          persistentVolumeClaim:
+            claimName: pingpong-pvc
       containers:
         - name: pingpong
           image: pingpong:latest
           imagePullPolicy: Never
+          volumeMounts:
+          - name: pingpong-pvc
+            mountPath: /usr/src
