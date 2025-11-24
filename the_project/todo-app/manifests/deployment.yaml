@@ -12,9 +12,16 @@ spec:
       labels:
         app: todo-dep
     spec:
+      volumes:
+        - name: the-project-pvc
+          persistentVolumeClaim:
+            claimName: the-project-pvc
       containers:
         - name: todo-dep
           image: todo:latest
           imagePullPolicy: Never
           ports:
           - containerPort: 5000
+          volumeMounts:
+            - name: the-project-pvc
+              mountPath: /data

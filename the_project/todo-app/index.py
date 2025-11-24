@@ -1,12 +1,97 @@
-from flask import Flask, render_template
+import os
+import time
+import requests
+from flask import Flask, send_file, render_template, make_response
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="templates")
 
-@app.route('/')
+DATA_DIR = "/data"
+IMAGE_PATH = f"{DATA_DIR}/current.jpg"
+TIMESTAMP_PATH = f"{DATA_DIR}/timestamp.txt"
+CACHE_DURATION = 600   # 10 minutes
+GRACE_DURATION = 1200  # 20 minutes (10 + grace)
+
+def get_cached_timestamp():
+    if not os.path.exists(TIMESTAMP_PATH):
+        return None
+    try:
+        with open(TIMESTAMP_PATH, "r") as f:
+            return float(f.read().strip())
+    except Exception:
+        return None
+
+def write_timestamp(ts):
+    with open(TIMESTAMP_PATH, "w") as f:
+        f.write(str(ts))
+
+def fetch_new_image():
+    # Picsum will redirect and return an image; requests follows redirects by default
+    r = requests.get("https://picsum.photos/1200", timeout=10)
+    r.raise_for_status()
+    os.makedirs(DATA_DIR, exist_ok=True)
+    with open(IMAGE_PATH, "wb") as f:
+        f.write(r.content)
+    write_timestamp(time.time())
+    app.logger.info("Fetched new image.")
+
+@app.route("/")
 def index():
-    # You can pass variables to the template as keyword arguments
-    return render_template('index.html')
+    """
+    Simple HTML page that displays the image.
+    Browser requests /image to get the actual bytes.
+    """
+    # optional: pass timestamp to template to show last refresh
+    ts = get_cached_timestamp()
+    last_fetched = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(ts)) if ts else "never"
+    return render_template("index.html", last_fetched=last_fetched)
+
+@app.route("/image")
+def serve_image():
+    now = time.time()
+    ts = get_cached_timestamp()
+
+    # Case 1: No cached image -> fetch
+    if ts is None or not os.path.exists(IMAGE_PATH):
+        fetch_new_image()
+        ts = get_cached_timestamp()
+
+    age = now - ts if ts else float("inf")
+
+    # Case 2: age < CACHE_DURATION -> serve cached
+    if age < CACHE_DURATION:
+        resp = make_response(send_file(IMAGE_PATH, mimetype="image/jpeg"))
+    # Case 3: CACHE_DURATION <= age < GRACE_DURATION -> one last serve (grace)
+    elif age < GRACE_DURATION:
+        resp = make_response(send_file(IMAGE_PATH, mimetype="image/jpeg"))
+    # Case 4: age >= GRACE_DURATION -> fetch new image then serve
+    else:
+        try:
+            fetch_new_image()
+        except Exception as e:
+            app.logger.exception("Failed to fetch new image, serving old one.")
+            # If fetch fails, serve the old one (if present)
+            if os.path.exists(IMAGE_PATH):
+                resp = make_response(send_file(IMAGE_PATH, mimetype="image/jpeg"))
+            else:
+                return ("Failed to fetch image and no cached image available.", 500)
+        else:
+            resp = make_response(send_file(IMAGE_PATH, mimetype="image/jpeg"))
+
+    # Ensure browser doesn't cache the image on its side — server controls actual rotation
+    resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+    resp.headers["Pragma"] = "no-cache"
+    resp.headers["Expires"] = "0"
+    return resp
+
+@app.route("/force-clear")
+def clear_cache():
+    """For testing: wipe cached image/timestamp so restart behavior can be simulated."""
+    if os.path.exists(IMAGE_PATH):
+        os.remove(IMAGE_PATH)
+    if os.path.exists(TIMESTAMP_PATH):
+        os.remove(TIMESTAMP_PATH)
+    return "Cache cleared."
 
 if __name__ == "__main__":
-    print("Server started in port 5000")   # printed on startup
+    # Use 0.0.0.0 so container ports are reachable
     app.run(host="0.0.0.0", port=5000)

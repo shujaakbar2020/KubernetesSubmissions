@@ -1,15 +1,33 @@
-<!-- templates/index.html -->
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Flask App</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Picsum cached image</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+            padding: 1.5rem;
+            background: #f7f7f7;
+        }
+
+        #picsum {
+            max-width: 100%;
+            height: 300px;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>Welcome to my Flask Application!</h1>
+    <main>
+        <h1>The Project App</h1>
+
+        <!-- The <img> points to the /image endpoint which applies server-side caching rules -->
+        <img id="picsum" src="/image" alt="Picsum image (cached)" />
+
+        <p>DevOps with Kubernetes 2025</p>
+    </main>
 </body>
 
 </html>
