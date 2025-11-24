@@ -1,23 +1,15 @@
-import time
-import uuid
-from datetime import datetime, timezone
-
 pong = 0
 
-def get_timestamp():
-    # ISO 8601 with milliseconds and Z
-    return datetime.now(timezone.utc).isoformat(timespec='milliseconds').replace("+00:00", "Z")
+from flask import Flask, jsonify
 
-def main():
-    stored_string = str(uuid.uuid4())
-    print(f"{get_timestamp()}: {stored_string}")
+app = Flask(__name__)
 
-    while True:
-        global pong
-        pong += 1
-        with open('/usr/src/randoms.txt', 'w') as file:
-            file.write(f"{get_timestamp()}: {stored_string}. \n Ping / Pongs: {pong}")
-        time.sleep(5)
+@app.route('/')
+def index():
+    global pong 
+    pong += 1
+    return jsonify({"message": pong})
 
 if __name__ == "__main__":
-    main()
+    print("Server started in port 5000")   # printed on startup
+    app.run(host="0.0.0.0", port=5000)
