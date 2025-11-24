@@ -11,6 +11,8 @@ TIMESTAMP_PATH = f"{DATA_DIR}/timestamp.txt"
 CACHE_DURATION = 600   # 10 minutes
 GRACE_DURATION = 1200  # 20 minutes (10 + grace)
 
+TODO_BACKEND_URL = "http://todo-backend-svc:5001/todos"
+
 def get_cached_timestamp():
     if not os.path.exists(TIMESTAMP_PATH):
         return None
@@ -76,21 +78,37 @@ def serve_image():
                 return ("Failed to fetch image and no cached image available.", 500)
         else:
             resp = make_response(send_file(IMAGE_PATH, mimetype="image/jpeg"))
+    try:
+        resp = requests.get(TODO_BACKEND_URL, timeout=5)
+        todos = resp.json()
+    except Exception as e:
+        app.logger.exception("Failed to fetch todos from backend")
+        todos = []
 
-    # Ensure browser doesn't cache the image on its side — server controls actual rotation
-    resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
-    resp.headers["Pragma"] = "no-cache"
-    resp.headers["Expires"] = "0"
-    return resp
+    return render_template("index.html", last_fetched=last_fetched, todos=todos)
 
-@app.route("/force-clear")
-def clear_cache():
-    """For testing: wipe cached image/timestamp so restart behavior can be simulated."""
-    if os.path.exists(IMAGE_PATH):
-        os.remove(IMAGE_PATH)
-    if os.path.exists(TIMESTAMP_PATH):
-        os.remove(TIMESTAMP_PATH)
-    return "Cache cleared."
+
+@app.route("/create-todo", methods=["POST"])
+def create_todo():
+    text = request.form.get("text", "").strip()
+    if not text:
+        return redirect("/")  # ignore empty
+    if len(text) > 140:
+        return redirect("/")  # optional: flash message can be added
+
+    # Send to todo-backend API
+    try:
+        resp = requests.post(
+            TODO_BACKEND_URL,
+            json={"text": text},
+            timeout=5
+        )
+        resp.raise_for_status()
+    except Exception as e:
+        # Optional: log or flash error
+        print("Failed to create todo:", e)
+
+    return redirect("/")
 
 if __name__ == "__main__":
     # Use 0.0.0.0 so container ports are reachable
