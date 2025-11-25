@@ -13,14 +13,10 @@ spec:
       labels:
         app: pingpong
     spec:
-      volumes:
-        - name: pingpong-pvc
-          persistentVolumeClaim:
-            claimName: pingpong-pvc
       containers:
         - name: pingpong
-          image: pingpong:latest
-          imagePullPolicy: Never
+          image: saakbar/pingpong:v2
+          imagePullPolicy: Always
           env:
             - name: POSTGRES_USER
               valueFrom:
@@ -39,7 +35,4 @@ spec:
             - name: DB_PORT
               value: "5432"
             - name: DB_NAME
-              value: "pingpong"
-          volumeMounts:
-            - name: pingpong-pvc
-              mountPath: /usr/src
+              value: "pingponguser"

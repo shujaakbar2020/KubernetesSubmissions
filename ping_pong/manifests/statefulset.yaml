@@ -5,7 +5,7 @@ metadata:
   namespace: exercises
 spec:
   serviceName: "postgres-headless"
-  replicas: 2 # or more for a cluster
+  replicas: 1 # or more for a cluster
   selector:
     matchLabels:
       app: postgres
@@ -31,6 +31,7 @@ spec:
         volumeMounts:
         - name: pgdata
           mountPath: /var/lib/postgresql/data
+          subPath: postgres
   volumeClaimTemplates:
   - metadata:
       name: pgdata

@@ -1,6 +1,8 @@
 pong = 0
 
 from flask import Flask, jsonify
+import os
+import psycopg2
 
 app = Flask(__name__)
 
