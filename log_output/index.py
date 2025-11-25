@@ -7,21 +7,14 @@ import requests
 
 app = Flask(__name__)
 
-def read_file():
-    try:
-        with open('/usr/src/randoms.txt', 'r') as file:
-            content = file.read()
-            return content
-    except FileNotFoundError:
-        return f"Error: The file 'randoms.txt' was not found."
 
 def read_content_file():
     try:
-        with open('information.txt', 'r') as file:
+        with open('serverconfig.txt', 'r') as file:
             content = file.read()
             return content
     except FileNotFoundError:
-        return f"Error: The file 'information.txt' was not found."
+        return f"Error: The file 'serverconfig.txt' was not found."
 
 @app.route('/')
 def index():

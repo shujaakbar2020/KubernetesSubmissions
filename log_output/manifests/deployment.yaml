@@ -19,10 +19,14 @@ spec:
             name: example-configmap
       containers:
         - name: hashgenerator
-          image: hashgenerator:latest
-          imagePullPolicy: Never
+          image: saakbar/log_output:latest
+          imagePullPolicy: Always
           env:
           - name: MESSAGE
             value: "hello world"
           - name: PORT
             value: "5000"
+          volumeMounts:
+          - name: config-volume
+            mountPath: /app
+            readOnly: true
