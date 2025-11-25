@@ -5,7 +5,7 @@ metadata:
   namespace: exercises
 spec:
   serviceName: "postgres-headless"
-  replicas: 1 # or more for a cluster
+  replicas: 2 # or more for a cluster
   selector:
     matchLabels:
       app: postgres
@@ -18,8 +18,16 @@ spec:
       - name: postgres
         image: postgres:16.1
         env:
-        - name: POSTGRES_PASSWORD
-          value: "password"
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: db-secret
+                key: POSTGRES_USER
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-secret
+                key: POSTGRES_PASSWORD
         volumeMounts:
         - name: pgdata
           mountPath: /var/lib/postgresql/data

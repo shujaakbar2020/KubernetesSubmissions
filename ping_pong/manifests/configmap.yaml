@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: init-sql
+data:
+  init.sql: |
+    CREATE DATABASE pingpong;
+    CREATE USER pingponguser WITH PASSWORD 'pingpong123';
+    GRANT ALL PRIVILEGES ON DATABASE pingpong TO pingponguser;
+    CREATE TABLE pings (id SERIAL PRIMARY KEY,ping INTEGER NOT NULL);

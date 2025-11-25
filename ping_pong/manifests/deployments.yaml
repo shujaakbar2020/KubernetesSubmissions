@@ -22,8 +22,24 @@ spec:
           image: pingpong:latest
           imagePullPolicy: Never
           env:
-          - name: PORT
-            value: "5000"
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: POSTGRES_PASSWORD
+            - name: PORT
+              value: "5000"
+            - name: DB_HOST
+              value: "postgres-svc"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              value: "pingpong"
           volumeMounts:
-          - name: pingpong-pvc
-            mountPath: /usr/src
+            - name: pingpong-pvc
+              mountPath: /usr/src
