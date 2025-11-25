@@ -1,6 +1,16 @@
 from flask import Flask, request, jsonify
+import logging
 
 app = Flask(__name__)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s'
+)
+
+@app.before_request
+def log_request():
+    logging.info(f"Incoming request: {request.method} {request.path} - body={request.get_data(as_text=True)}")
 
 # In-memory storage of todos
 todos = [
@@ -34,8 +44,10 @@ def create_todo():
     if not text:
         return jsonify({"error": "Todo text cannot be empty"}), 400
     if len(text) > 140:
+        logging.warning(f"Rejected TODO (too long): {text[:60]}...")
         return jsonify({"error": "Todo text must be <= 140 characters"}), 400
 
+    logging.info(f"Accepted TODO: {text}")
     todo = {"id": get_next_id(), "text": text}
     todos.append(todo)
     return jsonify(todo), 201
