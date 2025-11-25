@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: random-todo
+spec:
+  schedule: "0 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: random-todo-generator
+              image: curlimages/curl:latest
+              env:
+                - name: TODO_API_URL
+                  value: "http://todo-backend:5001/todos"
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  # Fetch the redirect URL from Wikipeda
+                  URL=$(curl -sI https://en.wikipedia.org/wiki/Special:Random | grep -i location | awk '{print $2}' | tr -d '\r')
+
+                  TODO="Read $URL"
+                  echo "Sending TODO: $TODO"
+
+                  # Send TODO to backend
+                  curl -X POST \
+                    -H "Content-Type: application/json" \
+                    -d "{\"text\": \"${TODO}\"}" \
+                    $TODO_API_URL
