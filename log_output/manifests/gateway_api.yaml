@@ -1,0 +1,14 @@
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: Gateway
+metadata:
+  name: hashresponse-gateway
+  namespace: exercises
+spec:
+  gatewayClassName: gce # similar to kubernetes.io/ingress.class: "gce"
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: Same
