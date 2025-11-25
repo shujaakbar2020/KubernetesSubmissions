@@ -30,3 +30,4 @@
 - [3.1.](https://github.com/shujaakbar2020/KubernetesSubmissions/tree/3.1/ping_pong)
 - [3.2.](https://github.com/shujaakbar2020/KubernetesSubmissions/tree/3.2/log_output)
 - [3.3.](https://github.com/shujaakbar2020/KubernetesSubmissions/tree/3.3/log_output)
+- [3.4.](https://github.com/shujaakbar2020/KubernetesSubmissions/tree/3.4/log_output)
