@@ -25,9 +25,11 @@ def read_content_file():
 
 @app.route('/')
 def index():
+    ping_pong_port = os.environ["PORT"]
+    ping_pong_url = f"http://pingpong-svc:{ping_pong_port}"
     file_content = read_content_file()
-    return jsonify({"message": os.environ["MESSAGE"], "file_content": file_content, "pingpong": requests.get("http://pingpong-svc:5000/").text})
+    return jsonify({"message": os.environ["MESSAGE"], "file_content": file_content, "pingpong": requests.get(ping_pong_url).text})
 
 if __name__ == "__main__":
     print("Server started in port 5000")   # printed on startup
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=os.environ["PORT"])

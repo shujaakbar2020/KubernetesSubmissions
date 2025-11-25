@@ -24,3 +24,5 @@ spec:
           env:
           - name: MESSAGE
             value: "hello world"
+          - name: PORT
+            value: "5000"

@@ -21,6 +21,9 @@ spec:
         - name: pingpong
           image: pingpong:latest
           imagePullPolicy: Never
+          env:
+          - name: PORT
+            value: "5000"
           volumeMounts:
           - name: pingpong-pvc
             mountPath: /usr/src

@@ -11,7 +11,7 @@ TIMESTAMP_PATH = f"{DATA_DIR}/timestamp.txt"
 CACHE_DURATION = 600   # 10 minutes
 GRACE_DURATION = 1200  # 20 minutes (10 + grace)
 
-TODO_BACKEND_URL = "http://todo-backend-svc:5001/todos"
+TODO_BACKEND_URL = f"http://todo-backend-svc:{os.environ['PORT']}/todos"
 
 def get_cached_timestamp():
     if not os.path.exists(TIMESTAMP_PATH):
@@ -112,4 +112,4 @@ def create_todo():
 
 if __name__ == "__main__":
     # Use 0.0.0.0 so container ports are reachable
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=os.environ["PORT"])

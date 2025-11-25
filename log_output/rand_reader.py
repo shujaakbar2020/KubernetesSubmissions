@@ -20,4 +20,4 @@ def index():
 
 if __name__ == "__main__":
     print("Server started in port 5000")   # printed on startup
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=os.environ["PORT"])

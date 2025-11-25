@@ -21,6 +21,9 @@ spec:
         - name: todo-dep
           image: todo:latest
           imagePullPolicy: Never
+          env:
+          - name: PORT
+            value: "5000"
           ports:
           - containerPort: 5000
           volumeMounts:
