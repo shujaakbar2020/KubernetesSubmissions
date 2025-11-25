@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: hashgenerator
+  namespace: exercises
 spec:
   replicas: 1
   selector:
@@ -13,13 +14,13 @@ spec:
         app: hashgenerator
     spec:
       volumes:
-        - name: pingpong-pvc
-          persistentVolumeClaim:
-            claimName: pingpong-pvc
+        - name: config-volume
+          configMap:
+            name: example-configmap
       containers:
         - name: hashgenerator
           image: hashgenerator:latest
           imagePullPolicy: Never
-          volumeMounts:
-          - name: pingpong-pvc
-            mountPath: /usr/src
+          env:
+          - name: MESSAGE
+            value: "hello world"

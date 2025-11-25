@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: example-configmap
+  namespace: exercises
+data:
+  serverconfig.txt: |
+    file content: this text is from file
