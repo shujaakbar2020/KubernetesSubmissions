@@ -2,27 +2,36 @@ name: Deploy to GKE with Kustomize
 
 on:
   push:
-    branches: ["main"]
+    branches:
+      - main
 
 jobs:
-  deploy:
-    environment: dwk-environments
+  setup-build-publish-deploy:
+    name: Setup, Build, Publish, and Deploy
     runs-on: ubuntu-latest
+    environment: dwk-environments
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v5
 
-    - name: Authenticate to Google Cloud
-      uses: google-github-actions/auth@v2
+    # Setup gcloud CLI
+    - uses: google-github-actions/setup-gcloud@1bee7de035d65ec5da40a31f8589e240eba8fde5
       with:
-        credentials_json: '${{ secrets.GKE_SA_KEY }}'
+        service_account_key: ${{ secrets.GKE_SA_KEY }}
+        project_id: ${{ secrets.GKE_PROJECT }}
 
-    - name: Setup gcloud
-      uses: google-github-actions/setup-gcloud@v2
+    # Configure Docker to use the gcloud command-line tool as a credential
+    # helper for authentication
+    - run: |-
+        gcloud --quiet auth configure-docker
 
-    - name: Configure Docker for Artifact Registry
-      run: gcloud auth configure-docker europe-north1-docker.pkg.dev
+    # Get the GKE credentials so we can deploy to the cluster
+    - uses: google-github-actions/get-gke-credentials@db150f2cc60d1716e61922b832eae71d2a45938f
+      with:
+        cluster_name: ${{ secrets.GKE_CLUSTER }}
+        location: ${{ secrets.GKE_ZONE }}
+        credentials: ${{ secrets.GKE_SA_KEY }}
 
     - name: Build Docker image
       run: |
@@ -38,27 +47,19 @@ jobs:
         docker push $APP_IMAGE
         docker push $BACKEND_IMAGE
 
-    - name: Disable GKE Auth Plugin
-      run: |
-        gcloud config set container/use_application_default_credentials false
-        gcloud config set container/use_v1_api true
-
-    - name: Get GKE Credentials
-      run: |
-        gcloud container clusters get-credentials \
-          ${{ secrets.GKE_CLUSTER }} \
-          --zone ${{ secrets.GKE_ZONE }} \
-          --project ${{ secrets.GKE_PROJECT }}
+    # Set up kustomize
+    - name: Set up Kustomize
+      run: |-
+        cd the_project/ 
+        curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
+        chmod u+x ./kustomize
 
     - name: Update image in Kustomize overlay
       run: |
-        cd the_project/
-        kustomize edit set image todo-app-image=$APP_IMAGE
-        kustomize edit set image todo-backend-image=$BACKEND_IMAGE
+        ./kustomize edit set image todo-app-image=$APP_IMAGE
+        ./kustomize edit set image todo-backend-image=$BACKEND_IMAGE
 
-    - name: Apply Kustomize to GKE
-      env:
-        USE_GKE_GCLOUD_AUTH_PLUGIN: "False"
-      run: |
-        cd the_project/
+    # Deploy the Docker image to the GKE cluster
+    - name: Deploy
+      run: |-
         kubectl apply -k .
