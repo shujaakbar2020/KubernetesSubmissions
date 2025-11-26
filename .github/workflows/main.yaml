@@ -3,7 +3,7 @@ name: Deploy to GKE with Kustomize
 on:
   push:
     branches:
-      - main
+      - "**"
 
 jobs:
   setup-build-publish-deploy:
