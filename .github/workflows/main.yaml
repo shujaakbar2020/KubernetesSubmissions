@@ -52,6 +52,8 @@ jobs:
         kustomize edit set image todo-backend-image=$BACKEND_IMAGE
 
     - name: Apply Kustomize to GKE
+      env:
+        USE_GKE_GCLOUD_AUTH_PLUGIN: "false"
       run: |
         cd the_project/
         kubectl apply -k .
