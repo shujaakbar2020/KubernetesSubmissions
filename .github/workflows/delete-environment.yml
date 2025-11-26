@@ -1,0 +1,48 @@
+name: Delete environment on branch deletion
+
+on:
+  delete:
+    branches:
+      - "**"
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Print deleted branch
+      run: |
+        echo "Deleted branch: ${{ github.event.ref }}"
+
+    # Stop if main branch was deleted — we never delete production namespace
+    - name: Prevent deletion of production namespace
+      if: github.event.ref == 'main'
+      run: |
+        echo "Branch 'main' was deleted — skipping namespace deletion."
+        exit 0
+
+    # Authenticate to Google Cloud
+    - uses: google-github-actions/setup-gcloud@v1
+      with:
+        service_account_key: ${{ secrets.GKE_SA_KEY }}
+        project_id: ${{ secrets.GKE_PROJECT }}
+
+    # Get GKE credentials
+    - uses: google-github-actions/get-gke-credentials@v1
+      with:
+        cluster_name: ${{ secrets.GKE_CLUSTER }}
+        location: ${{ secrets.GKE_ZONE }}
+        project_id: ${{ secrets.GKE_PROJECT }}
+
+    # Delete the namespace matching the branch name
+    - name: Delete Kubernetes namespace
+      run: |
+        NAMESPACE="${{ github.event.ref }}"
+        echo "Deleting namespace: $NAMESPACE"
+
+        if kubectl get namespace "$NAMESPACE" >/dev/null 2>&1; then
+          kubectl delete namespace "$NAMESPACE"
+          echo "Namespace $NAMESPACE deleted."
+        else
+          echo "Namespace $NAMESPACE does not exist — nothing to delete."
+        fi
