@@ -1,7 +1,7 @@
 import os
 import time
 import requests
-from flask import Flask, send_file, render_template, make_response
+from flask import Flask, send_file, render_template, make_response, request, redirect
 
 app = Flask(__name__, template_folder="templates")
 
@@ -11,7 +11,7 @@ TIMESTAMP_PATH = f"{DATA_DIR}/timestamp.txt"
 CACHE_DURATION = 600   # 10 minutes
 GRACE_DURATION = 1200  # 20 minutes (10 + grace)
 
-TODO_BACKEND_URL = f"http://todo-backend-svc:{os.environ['PORT']}/todos"
+TODO_BACKEND_URL = f"http://{os.environ['BACKEND_HOST']}/todos"
 
 def get_cached_timestamp():
     if not os.path.exists(TIMESTAMP_PATH):
@@ -45,7 +45,15 @@ def index():
     # optional: pass timestamp to template to show last refresh
     ts = get_cached_timestamp()
     last_fetched = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(ts)) if ts else "never"
-    return render_template("index.html", last_fetched=last_fetched)
+    # Fetch TODOS safely
+    try:
+        todo_resp = requests.get(TODO_BACKEND_URL, timeout=5)
+        todos = todo_resp.json()
+    except Exception:
+        app.logger.exception("Failed to fetch todos")
+        todos = []
+
+    return render_template("index.html", last_fetched=last_fetched, todos=todos)
 
 @app.route("/image")
 def serve_image():
@@ -61,31 +69,26 @@ def serve_image():
 
     # Case 2: age < CACHE_DURATION -> serve cached
     if age < CACHE_DURATION:
-        resp = make_response(send_file(IMAGE_PATH, mimetype="image/jpeg"))
-    # Case 3: CACHE_DURATION <= age < GRACE_DURATION -> one last serve (grace)
+        image_response = send_file(IMAGE_PATH, mimetype="image/jpeg")
+
+    # Case 3: grace period
     elif age < GRACE_DURATION:
-        resp = make_response(send_file(IMAGE_PATH, mimetype="image/jpeg"))
-    # Case 4: age >= GRACE_DURATION -> fetch new image then serve
+        image_response = send_file(IMAGE_PATH, mimetype="image/jpeg")
+
+    # Case 4: fetch new image
     else:
         try:
             fetch_new_image()
-        except Exception as e:
-            app.logger.exception("Failed to fetch new image, serving old one.")
-            # If fetch fails, serve the old one (if present)
+            image_response = send_file(IMAGE_PATH, mimetype="image/jpeg")
+        except Exception:
+            app.logger.exception("Failed to fetch new image")
             if os.path.exists(IMAGE_PATH):
-                resp = make_response(send_file(IMAGE_PATH, mimetype="image/jpeg"))
+                image_response = send_file(IMAGE_PATH, mimetype="image/jpeg")
             else:
                 return ("Failed to fetch image and no cached image available.", 500)
-        else:
-            resp = make_response(send_file(IMAGE_PATH, mimetype="image/jpeg"))
-    try:
-        resp = requests.get(TODO_BACKEND_URL, timeout=5)
-        todos = resp.json()
-    except Exception as e:
-        app.logger.exception("Failed to fetch todos from backend")
-        todos = []
 
-    return render_template("index.html", last_fetched=last_fetched, todos=todos)
+    return image_response
+
 
 
 @app.route("/create-todo", methods=["POST"])

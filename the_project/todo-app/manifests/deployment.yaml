@@ -13,19 +13,14 @@ spec:
       labels:
         app: todo-dep
     spec:
-      volumes:
-        - name: the-project-pvc
-          persistentVolumeClaim:
-            claimName: the-project-pvc
       containers:
         - name: todo-dep
-          image: todo:latest
-          imagePullPolicy: Never
+          image: saakbar/todo-app:latest
+          imagePullPolicy: Always
           env:
           - name: PORT
             value: "5000"
+          - name: BACKEND_HOST
+            value: "todo-backend-svc:5001"
           ports:
           - containerPort: 5000
-          volumeMounts:
-            - name: the-project-pvc
-              mountPath: /data
