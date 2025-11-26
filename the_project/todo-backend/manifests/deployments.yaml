@@ -18,7 +18,14 @@ spec:
           image: todo-backend-image
           imagePullPolicy: Always
           env:
-          - name: PORT
-            value: "5001"
+            - name: PORT
+              value: "5001"
           ports:
-          - containerPort: 5001
+            - containerPort: 5001
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"

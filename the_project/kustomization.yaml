@@ -8,6 +8,6 @@ resources:
 
 images:
   - name: todo-app-image
-    newName: us-central1-docker.pkg.dev/PROJECT_ID/app-repo/app
+    newName: saakbar/todo-app
   - name: todo-backend-image
-    newName: us-central1-docker.pkg.dev/PROJECT_ID/app-repo/app
+    newName: saakbar/todo-backend
