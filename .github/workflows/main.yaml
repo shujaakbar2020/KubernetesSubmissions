@@ -7,7 +7,6 @@ on:
 
 jobs:
   setup-build-publish-deploy:
-    name: Setup, Build, Publish, and Deploy
     runs-on: ubuntu-latest
     environment: dwk-environments
 
@@ -15,25 +14,30 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v5
 
-    # Setup gcloud CLI
-    - uses: google-github-actions/setup-gcloud@1bee7de035d65ec5da40a31f8589e240eba8fde5
+    # 1) Authenticate with modern method
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
       with:
-        service_account_key: ${{ secrets.GKE_SA_KEY }}
-        project_id: ${{ secrets.GKE_PROJECT }}
+        credentials_json: ${{ secrets.GKE_SA_KEY }}
 
-    # Configure Docker to use the gcloud command-line tool as a credential
-    # helper for authentication
-    - run: |-
-        gcloud --quiet auth configure-docker
+    # 2) Setup gcloud CLI
+    - name: Setup gcloud
+      uses: google-github-actions/setup-gcloud@v2
 
-    # Get the GKE credentials so we can deploy to the cluster
-    - uses: google-github-actions/get-gke-credentials@db150f2cc60d1716e61922b832eae71d2a45938f
+    # 3) Configure Docker auth for Artifact Registry
+    - name: Configure Docker
+      run: gcloud auth configure-docker europe-north1-docker.pkg.dev --quiet
+
+    # 4) Get GKE credentials (this is where ADC matters)
+    - name: Get GKE credentials
+      uses: google-github-actions/get-gke-credentials@v1
       with:
         cluster_name: ${{ secrets.GKE_CLUSTER }}
         location: ${{ secrets.GKE_ZONE }}
         project_id: ${{ secrets.GKE_PROJECT }}
 
-    - name: Build Docker image
+    # 5) Build images
+    - name: Build images
       run: |
         APP_IMAGE="europe-north1-docker.pkg.dev/${{ secrets.GKE_PROJECT }}/shujaakbar/app:${GITHUB_SHA}"
         BACKEND_IMAGE="europe-north1-docker.pkg.dev/${{ secrets.GKE_PROJECT }}/shujaakbar/backend:${GITHUB_SHA}"
@@ -42,24 +46,26 @@ jobs:
         echo "APP_IMAGE=$APP_IMAGE" >> $GITHUB_ENV
         echo "BACKEND_IMAGE=$BACKEND_IMAGE" >> $GITHUB_ENV
 
-    - name: Push Docker Image
+    # 6) Push images
+    - name: Push images
       run: |
         docker push $APP_IMAGE
         docker push $BACKEND_IMAGE
 
-    # Set up kustomize
-    - name: Set up Kustomize
-      run: |-
-        cd the_project/ 
-        curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
-        chmod u+x ./kustomize
-
-    - name: Update image in Kustomize overlay
+    # 7) Install kustomize
+    - name: Install Kustomize
       run: |
-        ./kustomize edit set image todo-app-image=$APP_IMAGE
-        ./kustomize edit set image todo-backend-image=$BACKEND_IMAGE
+        curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
+        chmod +x kustomize
 
-    # Deploy the Docker image to the GKE cluster
-    - name: Deploy
-      run: |-
-        kubectl apply -k .
+    # 8) Update images in kustomization.yaml
+    - name: Update Kustomize images
+      run: |
+        cd the_project
+        ../kustomize edit set image todo-app-image=$APP_IMAGE
+        ../kustomize edit set image todo-backend-image=$BACKEND_IMAGE
+
+    # 9) Deploy to GKE
+    - name: Deploy to GKE
+      run: |
+        kubectl apply -k the_project --validate=false
