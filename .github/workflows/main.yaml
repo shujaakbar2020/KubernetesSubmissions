@@ -27,7 +27,7 @@ jobs:
     - name: Build Docker image
       run: |
         IMAGE="europe-north1-docker.pkg.dev/${{ secrets.GKE_PROJECT }}/app-repo/app:${GITHUB_SHA}"
-        docker build -t $IMAGE .
+        docker build -t $IMAGE -f the_project/todo-app/Dockerfile .
         echo "IMAGE=$IMAGE" >> $GITHUB_ENV
 
     - name: Push Docker Image
