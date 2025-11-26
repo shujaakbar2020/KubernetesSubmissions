@@ -41,9 +41,7 @@ jobs:
     - name: Disable GKE Auth Plugin
       run: |
         gcloud config set container/use_application_default_credentials false
-        gcloud config set gcloud_container_use_client_certificate true
-        export USE_GKE_GCLOUD_AUTH_PLUGIN=False
-
+        gcloud config set container/use_v1_api true
 
     - name: Get GKE Credentials
       run: |
