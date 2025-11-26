@@ -38,6 +38,13 @@ jobs:
         docker push $APP_IMAGE
         docker push $BACKEND_IMAGE
 
+    - name: Disable GKE Auth Plugin
+      run: |
+        gcloud config set container/use_application_default_credentials false
+        gcloud config set gcloud_container_use_client_certificate true
+        export USE_GKE_GCLOUD_AUTH_PLUGIN=False
+
+
     - name: Get GKE Credentials
       run: |
         gcloud container clusters get-credentials \
@@ -53,7 +60,7 @@ jobs:
 
     - name: Apply Kustomize to GKE
       env:
-        USE_GKE_GCLOUD_AUTH_PLUGIN: "false"
+        USE_GKE_GCLOUD_AUTH_PLUGIN: "False"
       run: |
         cd the_project/
         kubectl apply -k .
