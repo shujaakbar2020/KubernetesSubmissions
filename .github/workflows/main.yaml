@@ -47,9 +47,11 @@ jobs:
 
     - name: Update image in Kustomize overlay
       run: |
+        cd the_project/
         kustomize edit set image todo-app-image=$APP_IMAGE
         kustomize edit set image todo-backend-image=$BACKEND_IMAGE
 
     - name: Apply Kustomize to GKE
       run: |
+        cd the_project/
         kubectl apply -k .
