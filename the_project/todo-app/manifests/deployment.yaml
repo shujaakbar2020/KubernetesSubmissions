@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: todo-dep
-          image: saakbar/todo-app:latest
+          image: todo-app-image
           imagePullPolicy: Always
           env:
           - name: PORT

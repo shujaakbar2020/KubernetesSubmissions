@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: todo-backend
-          image: saakbar/todo-backend:latest
+          image: todo-backend-image
           imagePullPolicy: Always
           env:
           - name: PORT

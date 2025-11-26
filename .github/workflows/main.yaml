@@ -26,13 +26,17 @@ jobs:
 
     - name: Build Docker image
       run: |
-        IMAGE="europe-north1-docker.pkg.dev/${{ secrets.GKE_PROJECT }}/shujaakbar/app:${GITHUB_SHA}"
-        cd the_project/todo-app
-        docker build -t $IMAGE -f Dockerfile .
-        echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+        APP_IMAGE="europe-north1-docker.pkg.dev/${{ secrets.GKE_PROJECT }}/shujaakbar/app:${GITHUB_SHA}"
+        BACKEND_IMAGE="europe-north1-docker.pkg.dev/${{ secrets.GKE_PROJECT }}/shujaakbar/backend:${GITHUB_SHA}"
+        docker build -t $APP_IMAGE -f the_project/todo-app/Dockerfile the_project/todo-app/
+        docker build -t $BACKEND_IMAGE -f the_project/todo-backend/Dockerfile the_project/todo-backend/
+        echo "APP_IMAGE=$APP_IMAGE" >> $GITHUB_ENV
+        echo "BACKEND_IMAGE=$BACKEND_IMAGE" >> $GITHUB_ENV
 
     - name: Push Docker Image
-      run: docker push $IMAGE
+      run: |
+        docker push $APP_IMAGE
+        docker push $BACKEND_IMAGE
 
     - name: Get GKE Credentials
       run: |
@@ -41,12 +45,11 @@ jobs:
           --zone ${{ secrets.GKE_ZONE }} \
           --project ${{ secrets.GKE_PROJECT }}
 
-    # - name: Update image in Kustomize overlay
-    #   run: |
-    #     cd k8s/overlays/prod
-    #     kustomize edit set image my-app-image=$IMAGE
+    - name: Update image in Kustomize overlay
+      run: |
+        kustomize edit set image todo-app-image=$APP_IMAGE
+        kustomize edit set image todo-backend-image=$BACKEND_IMAGE
 
-    # - name: Apply Kustomize to GKE
-    #   run: |
-    #     kubectl apply -k k8s/overlays/prod
-    #     kubectl rollout status deployment/app
+    - name: Apply Kustomize to GKE
+      run: |
+        kubectl apply -k .

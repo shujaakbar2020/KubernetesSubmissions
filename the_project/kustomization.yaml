@@ -5,3 +5,7 @@ resources:
   - todo-backend/manifests/service.yaml
   - todo-app/manifests/deployment.yaml
   - todo-app/manifests/service.yaml
+
+images:
+  - name: my-app-image
+    newName: us-central1-docker.pkg.dev/PROJECT_ID/app-repo/app
