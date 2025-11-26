@@ -1,0 +1,50 @@
+name: Deploy to GKE with Kustomize
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: '${{ secrets.GKE_SA_KEY }}'
+
+    - name: Setup gcloud
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: Configure Docker for Artifact Registry
+      run: gcloud auth configure-docker europe-north1-docker.pkg.dev
+
+    - name: Build Docker image
+      run: |
+        IMAGE="europe-north1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/app-repo/app:${GITHUB_SHA}"
+        docker build -t $IMAGE .
+        echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+
+    - name: Push Docker Image
+      run: docker push $IMAGE
+
+    - name: Get GKE Credentials
+      run: |
+        gcloud container clusters get-credentials \
+          ${{ secrets.GKE_CLUSTER }} \
+          --zone ${{ secrets.GKE_ZONE }} \
+          --project ${{ secrets.GCP_PROJECT }}
+
+    # - name: Update image in Kustomize overlay
+    #   run: |
+    #     cd k8s/overlays/prod
+    #     kustomize edit set image my-app-image=$IMAGE
+
+    # - name: Apply Kustomize to GKE
+    #   run: |
+    #     kubectl apply -k k8s/overlays/prod
+    #     kubectl rollout status deployment/app
