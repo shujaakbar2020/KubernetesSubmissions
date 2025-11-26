@@ -26,7 +26,7 @@ jobs:
 
     - name: Build Docker image
       run: |
-        IMAGE="europe-north1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/app-repo/app:${GITHUB_SHA}"
+        IMAGE="europe-north1-docker.pkg.dev/${{ secrets.GKE_PROJECT }}/app-repo/app:${GITHUB_SHA}"
         docker build -t $IMAGE .
         echo "IMAGE=$IMAGE" >> $GITHUB_ENV
 
@@ -38,7 +38,7 @@ jobs:
         gcloud container clusters get-credentials \
           ${{ secrets.GKE_CLUSTER }} \
           --zone ${{ secrets.GKE_ZONE }} \
-          --project ${{ secrets.GCP_PROJECT }}
+          --project ${{ secrets.GKE_PROJECT }}
 
     # - name: Update image in Kustomize overlay
     #   run: |
