@@ -1,0 +1,52 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup
+  namespace: project
+spec:
+  schedule: "0 2 * * *"  # every day at 2:00 AM
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: k8s-backup-sa
+          restartPolicy: OnFailure
+          containers:
+          - name: backup
+            image: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+            env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_DB
+
+            command:
+              - /bin/sh
+              - -c
+              - |
+                DATE=$(date +%Y-%m-%d_%H-%M-%S)
+                BACKUP_FILE=/tmp/${DATE}_backup.sql
+                echo "Dumping Postgres database..."
+                pg_dump -h postgres -U $(echo $POSTGRES_USER | base64 --decode) $(echo $POSTGRES_DB | base64 --decode) > $BACKUP_FILE
+                echo "Uploading to GCS..."
+                gsutil cp $BACKUP_FILE gs://pg_backup_dwk/pg_backup/
+            volumeMounts:
+              - name: tmp
+                mountPath: /tmp
+            envFrom:
+              - secretRef:
+                  name: postgres-secret
+          volumes:
+            - name: tmp
+              emptyDir: {}
