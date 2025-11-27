@@ -13,20 +13,31 @@ spec:
       labels:
         app: hashgenerator
     spec:
-      volumes:
-        - name: config-volume
-          configMap:
-            name: example-configmap
       containers:
         - name: hashgenerator
-          image: saakbar/log_output:latest
+          image: saakbar/log_output:v4
           imagePullPolicy: Always
           env:
-          - name: MESSAGE
-            value: "hello world"
-          - name: PORT
-            value: "5000"
-          volumeMounts:
-          - name: config-volume
-            mountPath: /app
-            readOnly: true
+            - name: MESSAGE
+              value: "hello world"
+            - name: PORT
+              value: "5001"
+            - name: PINGPONG_URL
+              value: "http://pingpong-svc:5000/healthz"
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+        - name: nginx
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+          # optional: readinessProbe
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 5

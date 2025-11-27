@@ -36,3 +36,9 @@ spec:
               value: "5432"
             - name: DB_NAME
               value: "pingponguser"
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10

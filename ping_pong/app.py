@@ -24,6 +24,16 @@ def get_db_connection():
     )
 
 
+@app.route('/healthz')
+def healthz():
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.session.execute('SELECT 1')
+        return "OK", 200
+    except Exception as e:
+        return "DB not ready", 500
+
 @app.route('/')
 def index():
     global pong 
