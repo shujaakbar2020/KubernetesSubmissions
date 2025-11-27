@@ -123,6 +123,21 @@ def create_todo():
 
     return redirect("/")
 
+@app.route("/update-todo/<int:id>", methods=["POST"])
+def update_todo(id):
+    done = request.form.get("done") == "true"
+    try:
+        resp = requests.put(
+            f"{TODO_BACKEND_URL}/{id}",
+            json={"done": done},
+            timeout=5
+        )
+        resp.raise_for_status()
+    except Exception as e:
+        print(f"Failed to update todo {id}:", e)
+    
+    return redirect("/")
+
 if __name__ == "__main__":
     # Use 0.0.0.0 so container ports are reachable
     app.run(host="0.0.0.0", port=os.environ["PORT"])

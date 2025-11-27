@@ -40,10 +40,17 @@ def init_db():
         cur.execute("""
             CREATE TABLE IF NOT EXISTS todos (
                 id SERIAL PRIMARY KEY,
-                text VARCHAR(140) NOT NULL
+                text VARCHAR(140) NOT NULL,
+                done BOOLEAN DEFAULT FALSE
             );
         """)
-        conn.commit()
+        # Attempt to add the column if it doesn't exist (simple migration)
+        try:
+            cur.execute("ALTER TABLE todos ADD COLUMN IF NOT EXISTS done BOOLEAN DEFAULT FALSE;")
+        except Exception:
+            conn.rollback()
+        else:
+            conn.commit()
         cur.close()
         conn.close()
         logging.info("Database initialized.")
@@ -53,11 +60,11 @@ def init_db():
 @app.route('/healthz')
 def healthz():
     try:
-        # conn = get_db_connection()
-        # cur = conn.cursor()
-        # cur.session.execute('SELECT * FROM todos')
-        # cur.close()
-        # conn.close()
+        conn = get_db_connection()
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cur.execute('SELECT * FROM todos')
+        cur.close()
+        conn.close()
         return "OK", 200
     except Exception as e:
         return "DB not ready", 500
@@ -100,7 +107,7 @@ def create_todo():
     try:
         conn = get_db_connection()
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-        cur.execute("INSERT INTO todos (text) VALUES (%s) RETURNING id, text;", (text,))
+        cur.execute("INSERT INTO todos (text, done) VALUES (%s, %s) RETURNING id, text, done;", (text, False))
         new_todo = cur.fetchone()
         conn.commit()
         cur.close()
@@ -108,6 +115,51 @@ def create_todo():
         return jsonify(new_todo), 201
     except Exception as e:
         logging.error(f"Error creating todo: {e}")
+        return jsonify({"error": "Database error"}), 500
+
+@app.route("/todos/<int:id>", methods=["PUT"])
+def update_todo(id):
+    """
+    Update a todo.
+    Expects JSON: {"text": "new text", "done": true}
+    """
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Missing JSON body"}), 400
+
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        # Build update query dynamically
+        fields = []
+        values = []
+        if "text" in data:
+            fields.append("text = %s")
+            values.append(data["text"])
+        if "done" in data:
+            fields.append("done = %s")
+            values.append(bool(data["done"]))
+        
+        if not fields:
+             return jsonify({"error": "No fields to update"}), 400
+
+        values.append(id)
+        query = f"UPDATE todos SET {', '.join(fields)} WHERE id = %s RETURNING id, text, done;"
+        
+        cur.execute(query, tuple(values))
+        updated_todo = cur.fetchone()
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        if updated_todo:
+            return jsonify(updated_todo)
+        else:
+            return jsonify({"error": "Todo not found"}), 404
+
+    except Exception as e:
+        logging.error(f"Error updating todo: {e}")
         return jsonify({"error": "Database error"}), 500
 
 if __name__ == "__main__":

@@ -9,7 +9,7 @@ resources:
 images:
   - name: todo-app-image
     newName: saakbar/todo-app
-    newTag: latest
+    newTag: v2
   - name: todo-backend-image
     newName: saakbar/todo-backend
-    newTag: v5
+    newTag: v8

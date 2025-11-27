@@ -35,7 +35,15 @@
 
         <ul class="todo-list" id="todo-list">
             {% for todo in todos %}
-            <li>{{ todo.text }}</li>
+            <li>
+                <span style="{{ 'text-decoration: line-through;' if todo.done else '' }}">
+                    {{ todo.text }}
+                </span>
+                <form method="POST" action="/update-todo/{{ todo.id }}" style="display: inline;">
+                    <input type="hidden" name="done" value="{{ 'false' if todo.done else 'true' }}">
+                    <button type="submit">{{ 'Undo' if todo.done else 'Done' }}</button>
+                </form>
+            </li>
             {% endfor %}
         </ul>
         <p>DevOps with Kubernetes 2025</p>
