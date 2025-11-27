@@ -1,9 +1,19 @@
 import os
 import time
 import requests
+import logging
 from flask import Flask, send_file, render_template, make_response, request, redirect
 
 app = Flask(__name__, template_folder="templates")
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s'
+)
+
+@app.before_request
+def log_request():
+    logging.info(f"Incoming request: {request.method} {request.path} - body={request.get_data(as_text=True)}")
 
 DATA_DIR = "/data"
 IMAGE_PATH = f"{DATA_DIR}/current.jpg"
