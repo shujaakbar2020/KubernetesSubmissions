@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: pingpong
+  namespace: exercises
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: pingpong
+  template:
+    metadata:
+      labels:
+        app: pingpong
+    spec:
+      containers:
+      - name: pingpong
+        image: saakbar/pingpong:v1   # replace with your app image
+        ports:
+        - containerPort: 8080
+
+  strategy:
+    canary:
+      steps:
+      - setWeight: 20
+      - pause: { duration: 60 }  # wait 1 min
+      - analysis:
+          templates:
+          - templateName: pingpong-cpu-check
+      - setWeight: 50
+      - pause: { duration: 60 }
+      - analysis:
+          templates:
+          - templateName: pingpong-cpu-check
+      - setWeight: 100

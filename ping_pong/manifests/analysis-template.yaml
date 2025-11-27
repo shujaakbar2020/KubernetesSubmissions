@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: pingpong-cpu-check
+  namespace: exercises
+spec:
+  metrics:
+  - name: namespace-cpu-usage
+    interval: 30s
+    count: 10   # 10 × 30s = 5 minutes monitoring
+    successCondition: result < 0.5
+    failureCondition: result >= 0.5
+    provider:
+      prometheus:
+        address: http://prometheus-server.monitoring.svc.cluster.local
+        query: |
+          sum(
+            rate(container_cpu_usage_seconds_total{namespace="exercises"}[5m])
+          )
