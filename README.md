@@ -49,6 +49,7 @@
 ### Chapter 5
 
 - [4.1.](https://github.com/shujaakbar2020/KubernetesSubmissions/tree/4.1/)
+- [4.2.](https://github.com/shujaakbar2020/KubernetesSubmissions/tree/4.2/the_project)
 
 
 # Database Choice on GKE
