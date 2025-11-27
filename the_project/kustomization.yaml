@@ -12,4 +12,4 @@ images:
     newTag: latest
   - name: todo-backend-image
     newName: saakbar/todo-backend
-    newTag: v1
+    newTag: v5
