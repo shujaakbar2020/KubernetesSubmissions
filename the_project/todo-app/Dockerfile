@@ -12,7 +12,7 @@ COPY index.py .
 COPY templates ./templates
 
 # Expose port
-EXPOSE 5000
+EXPOSE 3000
 
 # Start the Flask server
 CMD ["python3", "index.py"]

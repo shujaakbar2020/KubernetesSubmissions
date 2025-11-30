@@ -5,11 +5,17 @@ resources:
   - todo-backend/manifests/service.yaml
   - todo-app/manifests/deployment.yaml
   - todo-app/manifests/service.yaml
+  - broadcaster/manifests/deployment.yaml
+  - broadcaster/manifests/service.yaml
+  # - manifests/nats.yaml
 
 images:
   - name: todo-app-image
     newName: saakbar/todo-app
-    newTag: v2
+    newTag: v7
   - name: todo-backend-image
     newName: saakbar/todo-backend
-    newTag: v8
+    newTag: v13
+  - name: broadcaster-image
+    newName: saakbar/broadcaster
+    newTag: v1

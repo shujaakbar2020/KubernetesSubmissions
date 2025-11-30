@@ -18,12 +18,10 @@ spec:
           image: todo-app-image
           imagePullPolicy: Always
           env:
-          - name: PORT
-            value: "5000"
           - name: BACKEND_HOST
-            value: "todo-backend-svc:5001"
+            value: "todo-backend-svc:5000"
           ports:
-          - containerPort: 5000
+          - containerPort: 3000
           resources:
             requests:
               cpu: "100m"

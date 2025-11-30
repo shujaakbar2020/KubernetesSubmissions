@@ -101,7 +101,7 @@ def serve_image():
 
 
 
-@app.route("/create-todo", methods=["POST"])
+@app.route("/todos", methods=["POST"])
 def create_todo():
     text = request.form.get("text", "").strip()
     if not text:
@@ -113,7 +113,7 @@ def create_todo():
     try:
         resp = requests.post(
             TODO_BACKEND_URL,
-            json={"text": text},
+            json={"task": text},
             timeout=5
         )
         resp.raise_for_status()
@@ -140,4 +140,4 @@ def update_todo(id):
 
 if __name__ == "__main__":
     # Use 0.0.0.0 so container ports are reachable
-    app.run(host="0.0.0.0", port=os.environ["PORT"])
+    app.run(host="0.0.0.0", port=3000, debug=True)

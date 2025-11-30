@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: todo-backend
+  name: broadcaster
   namespace: project
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: todo-backend
+      app: broadcaster
   template:
     metadata:
       labels:
-        app: todo-backend
+        app: broadcaster
     spec:
       containers:
-        - name: todo-backend
-          image: todo-backend-image
+        - name: broadcaster
+          image: broadcaster-image
           imagePullPolicy: Always
           env:
             - name: NATS_URL
@@ -23,7 +23,7 @@ spec:
             - name: NATS_SUBJECT
               value: "todos.events"
           ports:
-            - containerPort: 5000
+            - containerPort: 5001
           resources:
             requests:
               cpu: "100m"
