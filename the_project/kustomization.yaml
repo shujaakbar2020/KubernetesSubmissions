@@ -12,10 +12,10 @@ resources:
 images:
 - name: broadcaster-image
   newName: saakbar/broadcaster
-  newTag: 29d3ac32fa6ce309b1e806f343b0d7fce92267d0
+  newTag: 3e6c8d9e019c2d2c06234cce278e93cf7c3f882a
 - name: todo-app-image
   newName: saakbar/todo-app
-  newTag: 29d3ac32fa6ce309b1e806f343b0d7fce92267d0
+  newTag: 3e6c8d9e019c2d2c06234cce278e93cf7c3f882a
 - name: todo-backend-image
   newName: saakbar/todo-backend
-  newTag: 29d3ac32fa6ce309b1e806f343b0d7fce92267d0
+  newTag: 3e6c8d9e019c2d2c06234cce278e93cf7c3f882a
