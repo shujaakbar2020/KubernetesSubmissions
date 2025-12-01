@@ -1,0 +1,22 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: prod-the-project
+
+resources:
+- ./../../base/app
+- ./../../base/backend
+- ./../../base/broadcaster
+
+namePrefix: prod-
+
+images:
+- name: broadcaster-image
+  newName: saakbar/broadcaster
+  newTag: 3e6c8d9e019c2d2c06234cce278e93cf7c3f882a
+- name: todo-app-image
+  newName: saakbar/todo-app
+  newTag: 3e6c8d9e019c2d2c06234cce278e93cf7c3f882a
+- name: todo-backend-image
+  newName: saakbar/todo-backend
+  newTag: 3e6c8d9e019c2d2c06234cce278e93cf7c3f882a

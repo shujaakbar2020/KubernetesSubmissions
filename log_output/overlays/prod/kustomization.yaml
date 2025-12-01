@@ -1,12 +1,12 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
+namespace: prod-log-output
+
 resources:
 - ./../../base
 patches:
   - path: deployment.yaml
-
-namespace: prod-log-output
 
 namePrefix: prod-
 

@@ -1,6 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hashgenerator
+  name: the-project
 spec:
   replicas: 3
