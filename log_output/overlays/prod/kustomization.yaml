@@ -6,9 +6,9 @@ resources:
 patches:
   - path: deployment.yaml
 
-namePrefix: prod-
-
 namespace: prod-log-output
+
+namePrefix: prod-
 
 images:
 - name: log-output-image
