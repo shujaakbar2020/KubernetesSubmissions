@@ -3,7 +3,7 @@ name: Build and publish application
 on:
   push:
     branches:
-      - main
+      - test
 
 jobs:
   build-publish:

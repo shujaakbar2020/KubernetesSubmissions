@@ -3,10 +3,45 @@ name: Build and publish application
 on:
   push:
     branches:
-      - test
+      - main
 
 jobs:
-  build-publish:
+  build-publish-log-output:
+    name: Build, Push, Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # tag image with the GitHub SHA to get a unique tag
+      - name: Build and publish backend
+        run: |-
+          cd log_output/
+          docker build --tag "saakbar/log_output:$GITHUB_SHA" -f Dockerfile .
+          docker push "saakbar/log_output:$GITHUB_SHA"
+
+      - name: Set up Kustomize
+        uses: imranismail/setup-kustomize@v2
+
+      - name: Use right image
+        run: |-
+          cd log_output/
+          kustomize edit set image log-output-image=saakbar/log_output:$GITHUB_SHA
+
+      - name: commit kustomization.yaml to GitHub
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: 'log_output/kustomization.yaml'
+          message: New version released ${{ github.sha }}
+
+  build-publish-the-project:
     name: Build, Push, Release
     runs-on: ubuntu-latest
 
