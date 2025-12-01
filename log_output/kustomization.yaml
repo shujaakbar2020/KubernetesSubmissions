@@ -1,10 +1,13 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - manifests/deployment.yaml
-  - manifests/service.yaml
+- manifests/deployment.yaml
+- manifests/service.yaml
 
 images:
-  - name: log-output-image
-    newName: saakbar/log_output
-    newTag: v4
+- name: PROJECT/IMAGE
+  newName: saakbar/log_output
+  newTag: b651a98c107321b0611ac39333fa4e8acbecfb63
+- name: log-output-image
+  newName: saakbar/log_output
+  newTag: v4
