@@ -1,21 +1,21 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - todo-backend/manifests/deployments.yaml
-  - todo-backend/manifests/service.yaml
-  - todo-app/manifests/deployment.yaml
-  - todo-app/manifests/service.yaml
-  - broadcaster/manifests/deployment.yaml
-  - broadcaster/manifests/service.yaml
+- todo-backend/manifests/deployments.yaml
+- todo-backend/manifests/service.yaml
+- todo-app/manifests/deployment.yaml
+- todo-app/manifests/service.yaml
+- broadcaster/manifests/deployment.yaml
+- broadcaster/manifests/service.yaml
   # - manifests/nats.yaml
 
 images:
-  - name: todo-app-image
-    newName: saakbar/todo-app
-    newTag: v7
-  - name: todo-backend-image
-    newName: saakbar/todo-backend
-    newTag: v13
-  - name: broadcaster-image
-    newName: saakbar/broadcaster
-    newTag: v1
+- name: broadcaster-image
+  newName: saakbar/broadcaster
+  newTag: 2909a88a11bd287c44307eb8e324129cf66c2649
+- name: todo-app-image
+  newName: saakbar/todo-app
+  newTag: 2909a88a11bd287c44307eb8e324129cf66c2649
+- name: todo-backend-image
+  newName: saakbar/todo-backend
+  newTag: 2909a88a11bd287c44307eb8e324129cf66c2649
