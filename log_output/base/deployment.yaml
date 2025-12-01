@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hashgenerator
+  namespace: exercises
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hashgenerator
+  template:
+    metadata:
+      labels:
+        app: hashgenerator
+    spec:
+      containers:
+        - name: hashgenerator
+          image: log-output-image
+          imagePullPolicy: Always
+          env:
+            - name: MESSAGE
+              value: "hello world"
+            - name: PORT
+              value: "5001"
+            - name: PINGPONG_URL
+              value: "http://pingpong-svc:5000/healthz"
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+        - name: nginx
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+          # optional: readinessProbe
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 5
