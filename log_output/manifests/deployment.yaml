@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: hashgenerator
-          image: saakbar/log_output:v4
+          image: log-output-image
           imagePullPolicy: Always
           env:
             - name: MESSAGE
