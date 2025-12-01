@@ -7,4 +7,3 @@ resources:
 images:
 - name: log-output-image
   newName: saakbar/log_output
-  newTag: a6f3f276c66d7d1cbaee934221cffef771db3ed6
