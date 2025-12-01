@@ -33,7 +33,7 @@ jobs:
       - name: Use right image
         run: |-
           cd log_output/
-          kustomize edit set image PROJECT/IMAGE=saakbar/log_output:$GITHUB_SHA
+          kustomize edit set image log-output-image=saakbar/log_output:$GITHUB_SHA
 
       - name: commit kustomization.yaml to GitHub
         uses: EndBug/add-and-commit@v9

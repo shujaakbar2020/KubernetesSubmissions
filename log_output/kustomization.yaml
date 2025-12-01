@@ -5,9 +5,6 @@ resources:
 - manifests/service.yaml
 
 images:
-- name: PROJECT/IMAGE
-  newName: saakbar/log_output
-  newTag: b651a98c107321b0611ac39333fa4e8acbecfb63
 - name: log-output-image
   newName: saakbar/log_output
   newTag: v4
