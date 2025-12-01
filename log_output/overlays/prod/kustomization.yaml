@@ -8,6 +8,8 @@ patches:
 
 namePrefix: prod-
 
+namespace: prod-log-output
+
 images:
 - name: log-output-image
   newName: saakbar/log_output

@@ -2,6 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: hashgenerator
-  namespace: exercises
+  namespace: prod-log-output
 spec:
   replicas: 3
