@@ -31,10 +31,12 @@ jobs:
         uses: imranismail/setup-kustomize@v2
 
       - name: Use right image
-        run: kustomize edit set image PROJECT/IMAGE=saakbar/log_output:$GITHUB_SHA
+        run: |-
+          cd log_output/
+          kustomize edit set image PROJECT/IMAGE=saakbar/log_output:$GITHUB_SHA
 
       - name: commit kustomization.yaml to GitHub
         uses: EndBug/add-and-commit@v9
         with:
-          add: 'kustomization.yaml'
+          add: 'log_output/kustomization.yaml'
           message: New version released ${{ github.sha }}
