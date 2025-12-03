@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dummysite-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dummysite-operator
+  template:
+    metadata:
+      labels:
+        app: dummysite-operator
+    spec:
+      serviceAccountName: dummysite-operator
+      containers:
+        - name: operator
+          image: saakbar/dummysite-operator:v2
+          imagePullPolicy: Always

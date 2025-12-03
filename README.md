@@ -60,6 +60,10 @@
 - [4.9.](https://github.com/shujaakbar2020/KubernetesSubmissions/tree/4.9/the_project)
 - [4.10.](https://github.com/shujaakbar2020/the_project_configs/tree/4.10)
 
+### Chapter 6
+
+- [5.1.](https://github.com/shujaakbar2020/the_project_configs/tree/5.1/crd)
+
 # Database Choice on GKE
 
 If we needs to deploy production applications on GKE, especially when reliability and low operational overhead are priorities, **Google Cloud SQL** is the preferred option.

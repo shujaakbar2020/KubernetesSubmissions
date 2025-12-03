@@ -1,0 +1,6 @@
+apiVersion: shujaakbar.com/v1alpha1
+kind: DummySite
+metadata:
+  name: test
+spec:
+  website_url: "https://shujaakbar.com"
