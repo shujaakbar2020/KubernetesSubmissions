@@ -63,6 +63,7 @@
 ### Chapter 6
 
 - [5.1.](https://github.com/shujaakbar2020/KubernetesSubmissions/tree/5.1/crd)
+- [5.2.](https://github.com/shujaakbar2020/KubernetesSubmissions/tree/5.2)
 
 # Database Choice on GKE
 
