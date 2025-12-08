@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: pingpong
-          image: saakbar/pingpong:v2
+          image: saakbar/pingpong:v4
           imagePullPolicy: Always
           env:
             - name: POSTGRES_USER
@@ -35,7 +35,7 @@ spec:
             - name: DB_PORT
               value: "5432"
             - name: DB_NAME
-              value: "pingponguser"
+              value: "pingpong"
           readinessProbe:
             httpGet:
               path: /healthz

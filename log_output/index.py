@@ -8,6 +8,8 @@ import requests
 app = Flask(__name__)
 
 PINGPONG_URL=os.environ["PINGPONG_URL"]
+GREETER_URL=os.environ["GREETER_URL"]
+
 
 @app.route("/healthz")
 def healthz():
@@ -32,7 +34,7 @@ def index():
     # ping_pong_port = os.environ["PORT"]
     # ping_pong_url = f"http://pingpong-svc:{ping_pong_port}"
     file_content = read_content_file()
-    return jsonify({"message": os.environ["MESSAGE"], "pingpong": requests.get(PINGPONG_URL).text})
+    return jsonify({"message": os.environ["MESSAGE"], "pingpong": requests.get(PINGPONG_URL).text, "greetings": requests.get(GREETER_URL).text})
 
 if __name__ == "__main__":
     print("Server started in port 5000")   # printed on startup

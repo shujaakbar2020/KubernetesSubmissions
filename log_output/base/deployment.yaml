@@ -22,11 +22,11 @@ spec:
             - name: PORT
               value: "5001"
             - name: PINGPONG_URL
-              value: "http://pingpong-svc:5000/healthz"
+              value: "http://pingpong-svc:5000/"
           readinessProbe:
             httpGet:
               path: /healthz
-              port: 5000
+              port: 5001
             initialDelaySeconds: 5
             periodSeconds: 10
         - name: nginx

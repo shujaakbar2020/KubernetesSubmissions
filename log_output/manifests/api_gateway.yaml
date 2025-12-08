@@ -1,0 +1,56 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: log-gateway
+  namespace: exercises
+spec:
+  gatewayClassName: istio
+  listeners:
+    - name: http
+      port: 80
+      protocol: HTTP
+      allowedRoutes:
+        namespaces:
+          from: Same
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: log-output-route
+  namespace: exercises
+spec:
+  parentRefs:
+    - name: log-gateway
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /log_output
+      backendRefs:
+        - name: hashgenerator-svc-1
+          namespace: exercises
+          weight: 75
+          port: 5001
+        - name: hashgenerator-svc-2
+          namespace: exercises
+          weight: 25
+          port: 5001
+
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: pingpong-route
+  namespace: exercises
+spec:
+  parentRefs:
+    - name: log-gateway
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /pingpong
+      backendRefs:
+        - name: pingpong-svc
+          namespace: exercises
+          port: 5000
