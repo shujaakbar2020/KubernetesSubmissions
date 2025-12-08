@@ -1,0 +1,101 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: default
+data:
+  default.conf: |
+    server {
+        listen 80;
+        server_name _;
+
+        root /usr/share/nginx/html;
+        index index.html;
+
+        location / {
+            try_files $uri $uri/ =404;
+        }
+
+        # Disable caching so random.html changes are visible immediately
+        add_header Cache-Control "no-store, no-cache, must-revalidate, max-age=0";
+
+        access_log /var/log/nginx/access.log;
+        error_log  /var/log/nginx/error.log warn;
+    }
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wiki-server
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wiki-server
+  template:
+    metadata:
+      labels:
+        app: wiki-server
+    spec:
+      volumes:
+        - name: www
+          emptyDir: {}
+        - name: nginx-config
+          configMap:
+            name: nginx-config
+            items:
+              - key: default.conf
+                path: default.conf
+
+      #########################################
+      # INIT CONTAINER
+      #########################################
+      initContainers:
+        - name: init-fetch-kubernetes
+          image: curlimages/curl:8.10.1
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Downloading Kubernetes Wikipedia page..."
+              curl -L \
+                -H "User-Agent: Mozilla/5.0 (compatible; K8sWikiApp/1.0)" \
+                https://en.wikipedia.org/wiki/Kubernetes \
+                -o /www/index.html
+              echo "Initial page downloaded."
+          volumeMounts:
+            - name: www
+              mountPath: /www
+
+      containers:
+
+        #########################################
+        # MAIN NGINX CONTAINER
+        #########################################
+        - name: nginx
+          image: nginx:1.27
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: www
+              mountPath: /usr/share/nginx/html
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d/default.conf
+              subPath: default.conf
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wiki-svc
+spec:
+  type: LoadBalancer
+  selector:
+    app: wiki-svc
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 80  
