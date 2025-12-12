@@ -91,9 +91,9 @@ kind: Service
 metadata:
   name: wiki-svc
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
-    app: wiki-svc
+    app: wiki-server
   ports:
     - name: http
       protocol: TCP
