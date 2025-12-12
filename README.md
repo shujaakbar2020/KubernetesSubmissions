@@ -67,6 +67,7 @@
 - [5.3.](https://github.com/shujaakbar2020/KubernetesSubmissions/tree/5.3)
 - [5.4.](https://github.com/shujaakbar2020/KubernetesSubmissions/tree/5.4/wikipedia)
 - [5.6.](https://github.com/shujaakbar2020/KubernetesSubmissions/tree/5.6/knative)
+- [5.7.](https://github.com/shujaakbar2020/KubernetesSubmissions/tree/5.7/ping_pong)
 
 # Database Choice on GKE
 
